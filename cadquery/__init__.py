@@ -1,4 +1,4 @@
-# these items point to the OCC implementation
+    # these items point to the OCC implementation
 from .occ_impl.geom import Plane, BoundBox, Vector, Matrix, Location
 from .occ_impl.shapes import (
     Shape,
@@ -27,6 +27,7 @@ from .selectors import (
     StringSyntaxSelector,
     Selector,
 )
+from .sketch import Sketch
 from .cq_rel import CQ, Workplane, name, WPTree
 from .assembly import Assembly, Color, Constraint
 from . import selectors
@@ -67,7 +68,8 @@ __all__ = [
     "StringSyntaxSelector",
     "Selector",
     "plugins",
-    "nqme",
+    "name",
+    "Sketch",
 ]
 
 __version__ = "2.1.dev1"
