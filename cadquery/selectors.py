@@ -782,7 +782,7 @@ class _SimpleStringSyntaxSelector(Selector):
         return self.mySelector.filter(objectList)
 
 
-def _makeExpressionGrammar(atom, wp):
+def _makeRelExpressionGrammar(atom, wp):
     """
     Define the complex string selector grammar using PyParsing (which supports
     logical operations and nesting)
@@ -834,9 +834,59 @@ def _makeExpressionGrammar(atom, wp):
     return expr
 
 
+def _makeExpressionGrammar(atom):
+    """
+    Define the complex string selector grammar using PyParsing (which supports
+    logical operations and nesting)
+    """
+
+    # define operators
+    and_op = Literal("and")
+    or_op = Literal("or")
+    delta_op = oneOf(["exc", "except"])
+    not_op = Literal("not")
+
+    def atom_callback(res):
+        return _SimpleStringSyntaxSelector(res)
+
+    # construct a simple selector from every matched
+    atom.setParseAction(atom_callback)
+
+    # define callback functions for all operations
+    def and_callback(res):
+        # take every secend items, i.e. all operands
+        items = res.asList()[0][::2]
+        return reduce(AndSelector, items)
+
+    def or_callback(res):
+        # take every secend items, i.e. all operands
+        items = res.asList()[0][::2]
+        return reduce(SumSelector, items)
+
+    def exc_callback(res):
+        # take every secend items, i.e. all operands
+        items = res.asList()[0][::2]
+        return reduce(SubtractSelector, items)
+
+    def not_callback(res):
+        right = res.asList()[0][1]  # take second item, i.e. the operand
+        return InverseSelector(right)
+
+    # construct the final grammar and set all the callbacks
+    expr = infixNotation(
+        atom,
+        [
+            (and_op, 2, opAssoc.LEFT, and_callback),
+            (or_op, 2, opAssoc.LEFT, or_callback),
+            (delta_op, 2, opAssoc.LEFT, exc_callback),
+            (not_op, 1, opAssoc.RIGHT, not_callback),
+        ],
+    )
+
+    return expr
+
 
 _expression_grammar = _makeExpressionGrammar(_grammar)
-
 
 
 class StringSyntaxSelector(Selector):
@@ -896,7 +946,7 @@ class StringSyntaxSelector(Selector):
         """
         self.selectorString = selectorString
         self.workplane = wp
-        parse_result = _makeExpressionGrammar(_grammar, wp).parseString(
+        parse_result = _makeRelExpressionGrammar(_grammar, wp).parseString(
             selectorString, parseAll=True
         )
         self.mySelector = parse_result.asList()[0]

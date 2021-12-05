@@ -27,7 +27,7 @@ from .selectors import (
     StringSyntaxSelector,
     Selector,
 )
-from .cq import CQ, Workplane
+from .cq_rel import CQ, Workplane, name, WPTree
 from .assembly import Assembly, Color, Constraint
 from . import selectors
 from . import plugins
@@ -36,6 +36,7 @@ from . import plugins
 __all__ = [
     "CQ",
     "Workplane",
+    "WPTree",
     "Assembly",
     "Color",
     "Constraint",
@@ -66,6 +67,7 @@ __all__ = [
     "StringSyntaxSelector",
     "Selector",
     "plugins",
+    "nqme",
 ]
 
-__version__ = "2.1"
+__version__ = "2.1.dev1"
